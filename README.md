@@ -16,16 +16,35 @@ graph LR
         m(MUI)
     end
 
-    subgraph "SSG"
-        n(Next.js)
+    subgraph "S3 Bucket"
+        n(website)
     end
 
     subgraph "DynamoDB"
-        d(DynamoDB)
+        d[(DynamoDB)]
     end
 
-    e---get---a
+    e---cc(action - AI magic)---a
     e---iframe---m
-    n---getStaticProps---d
-    e---save--->d
+    e---bb(save - update.js)--->d & n
+    n & d---aa(initializer - retrieval.js)--->e
    ```
+
+## Local Development
+
+### S3 bucket 
+https://s3ninja.net/
+
+### DB
+#### DynamoDB
+tools can be locate under the following path `./tools/dynamodb-utils`  
+to setup local dynamodb, you need docker for this.  
+Run DynamoDB locally use the following command:  
+`docker-compose up --build`
+
+#### DynamoDB admin
+install  
+`npm install -g dynamodb-admin`  
+
+Local DynamoADMIN command:  
+`DYNAMO_ENDPOINT=localDynamoDBipAddress:port dynamodb-admin`

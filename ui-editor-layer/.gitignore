@@ -1,0 +1,29 @@
+# Downloaded files
+public/dl/
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Environment variables
+.env
+
+# Dependency directories
+node_modules/
+
+# Coverage output
+coverage/
+
+# Editor-specific files
+.vscode/
+.idea/
+
+# Operating System-specific files
+.DS_Store
+Thumbs.db
