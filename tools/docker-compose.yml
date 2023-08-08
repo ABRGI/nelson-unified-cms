@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  dynamodb:
+    image: amazon/dynamodb-local
+    container_name: local-dynamodb
+    hostname: dynamodb
+    restart: always
+    volumes:
+      - ./local-dynamodb-data:/home/dynamodblocal/data
+    ports:
+      - "8000:8000"
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath /home/dynamodblocal/data/"
+  s3ninja:
+    image: scireum/s3-ninja:latest
+    container_name: local-s3ninja
+    restart: always
+    ports:
+      - "9444:9000"
