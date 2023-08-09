@@ -12,7 +12,12 @@ let port = 3002;
  */
 const dynamoProps = { region: process.env.ENV_REGION }
 const s3Props = { region: process.env.ENV_REGION }
-if (process.env.LOCAL) {
+if (process.env.LOCAL === "true") {
+	s3Props.endpoint = process.env.S3_ENDPOINT;
+	s3Props.sslEnabled = false;
+	s3Props.forcePathStyle = true;
+	dynamoProps.endpoint = process.env.DYNAMODB_ENDPOINT;
+	dynamoProps.sslEnabled = false;
 	dynamoProps.credentials = {
 		accessKeyId: process.env.ACCESSKEY,
 		secretAccessKey: process.env.SECRETKEY
@@ -21,10 +26,8 @@ if (process.env.LOCAL) {
 		accessKeyId: process.env.ACCESSKEY,
 		secretAccessKey: process.env.SECRETKEY
 	};
-	s3Props.endpoint = process.env.S3_ENDPOINT;
-	s3Props.sslEnabled = false;
-	s3Props.forcePathStyle = true;
 }
+
 const retrieval = require('./src/retrieval')(s3Props, dynamoProps);
 const update = require('./src/update')(s3Props, dynamoProps);
 const publish = require('./src/publish')(s3Props, dynamoProps);
