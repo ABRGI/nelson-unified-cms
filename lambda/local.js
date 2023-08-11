@@ -5,32 +5,9 @@ const startServer = require('./utils/startServer');
 const app = express();
 let port = 3002;
 
-/**
- * AWS DynamoDB and S3 properties setup.
- * If running in local mode, use the provided access key, secret key, and S3 endpoint.
- * If not in local mode, just set the region.
- */
-const dynamoProps = { region: process.env.ENV_REGION }
-const s3Props = { region: process.env.ENV_REGION }
-if (process.env.LOCAL === "true") {
-	s3Props.endpoint = process.env.S3_ENDPOINT;
-	s3Props.sslEnabled = false;
-	s3Props.forcePathStyle = true;
-	dynamoProps.endpoint = process.env.DYNAMODB_ENDPOINT;
-	dynamoProps.sslEnabled = false;
-	dynamoProps.credentials = {
-		accessKeyId: process.env.ACCESSKEY,
-		secretAccessKey: process.env.SECRETKEY
-	};
-	s3Props.credentials = {
-		accessKeyId: process.env.ACCESSKEY,
-		secretAccessKey: process.env.SECRETKEY
-	};
-}
-
-const retrieval = require('./src/retrieval')(s3Props, dynamoProps);
-const update = require('./src/update')(s3Props, dynamoProps);
-const publish = require('./src/publish')(s3Props, dynamoProps);
+const retrieval = require('./src/retrieval/retrieval');
+const update = require('./src/update/update');
+const publish = require('./src/publish/publish');
 
 app.use(cors());
 app.use(express.json());
@@ -38,8 +15,51 @@ app.use(express.json());
 /**
  * Retrieval, update, and publish handlers for AWS operations.
  */
-app.use('/retrieve', retrieval);
-app.use('/update', update);
-app.use('/publish', publish);
+
+/**
+ * Handles the POST request to retrieve data.
+ *
+ * @param {Object} req Express request object.
+ * @param {Object} res Express response object.
+ */
+app.post('/retrieve', (req, res) => {
+	retrieval.handler({ body: req.body, httpMethod: 'POST' }).then((ret) => {
+		res.statusCode = ret.statusCode;
+		if (ret.statusCode === 200) res.send(ret.HTML)
+		res.send(JSON.parse(ret.body));
+	}).catch(function (err) {
+		console.log(err);
+	})
+})
+
+/**
+ * Handles the PUT request to update data.
+ *
+ * @param {Object} req Express request object.
+ * @param {Object} res Express response object.
+ */
+app.put('/update', (req, res) =>   {
+	update.handler({ body: req.body, httpMethod: 'PUT' }).then((ret) => {
+		res.statusCode = ret.statusCode;
+		res.send(JSON.parse(ret.body));
+	}).catch(function (err) {
+		console.log(err);
+	})
+})
+
+/**
+ * Handles the PUT request to publish data.
+ *
+ * @param {Object} req Express request object.
+ * @param {Object} res Express response object.
+ */
+app.put('/publish', (req, res) =>   {
+	publish.handler({ body: req.body, httpMethod: 'PUT' }).then((ret) => {
+		res.statusCode = ret.statusCode;
+		res.send(JSON.parse(ret.body));
+	}).catch(function (err) {
+		console.log(err);
+	})
+})
 
 startServer(app, port);
