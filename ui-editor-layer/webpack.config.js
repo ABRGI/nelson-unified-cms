@@ -1,5 +1,6 @@
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
 	entry: './editor/script.js',
@@ -17,5 +18,12 @@ module.exports = {
 			},
 		}),],
 	},
-	mode: 'production'
+	mode: 'production',
+	plugins: [
+		new CopyWebpackPlugin({
+			patterns: [
+				{ from: './editor/style.css', to: 'style.css' }
+			],
+		}),
+	]
 };
