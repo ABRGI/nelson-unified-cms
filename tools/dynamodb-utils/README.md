@@ -1,5 +1,7 @@
+When you run the following `npm start` first time, you have to comment the following line `await dropTable();` from the file `main.js`. You can find it from the bottom part of the code.
 
 ### DB diagram
+Here is highlevel diagram over the db structure. Sections is example of how the mapping works.
 ```mermaid
 classDiagram
 
@@ -34,6 +36,8 @@ class Sections {
 class Attribute {
     show: Boolean
     content: String
+    selector: String
+    type: String
 }
 
 NUC "1" --> "1" Environments : contains
