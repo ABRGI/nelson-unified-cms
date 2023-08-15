@@ -1,7 +1,7 @@
 const jsdom = require('jsdom');
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const { unmarshall, marshall } = require("@aws-sdk/util-dynamodb");
-const { GetObjectCommand, S3Client } = require("@aws-sdk/client-s3");
+const { GetObjectCommand, S3Client, PutObjectCommand} = require("@aws-sdk/client-s3");
 const { JSDOM } = jsdom;
 
 /**
@@ -50,6 +50,78 @@ exports.handler = async (event) => {
 	}
 
 	/**
+	 * Saves content to the specified S3 bucket.
+	 *
+	 * @async
+	 * @function
+	 * @param {string} bucketName - Name of the S3 bucket.
+	 * @param {string} clientId - Client identifier.
+	 * @param {string} content - Content to save.
+	 * @throws {Error} If the save operation to S3 fails.
+	 */
+	const saveToS3 = async (bucketName, clientId, content)=> {
+		const command = new PutObjectCommand({
+			Bucket: bucketName,
+			Key: "index.html",
+			Body: content,
+			ContentType: "text/html"
+		});
+
+		try {
+			await s3Client.send(command);
+			console.log(`HTML saved to ${bucketName}/index.html`);
+		} catch (error) {
+			console.error(`Failed to save HTML to ${bucketName}/index.html`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Fetches and returns transformed data for a given client ID.
+	 *
+	 * @async
+	 * @function
+	 * @param {string} clientId - Client identifier.
+	 * @returns {Promise<Object>} The transformed data.
+	 * @throws {Error} If the fetch operation fails.
+	 */
+	const getTransformedData = async (clientId) => {
+		const response = await fetch('http://localhost:3002/mapping', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ clientId })
+		});
+
+		if (!response.ok) {
+			throw new Error('Failed to fetch transformed data');
+		}
+		return await response.json();
+	}
+
+	/**
+	 * Checks if an object exists and is accessible in a specified S3 bucket.
+	 *
+	 * @async
+	 * @function
+	 * @param {string} bucket - Name of the S3 bucket.
+	 * @param {string} targetFile - The key of the target file in the bucket.
+	 * @returns {Promise<boolean>} Returns true if the object exists and is accessible, false otherwise.
+	 */
+	const bucketObjectExistsAndAccessible = async (bucket, targetFile) => {
+		const command = {
+			Bucket: bucket, Key: targetFile,
+		};
+		try {
+			await s3Client.send(new GetObjectCommand(command));
+			return true;
+		} catch (error) {
+			return false;
+		}
+	}
+
+	/**
 	 * Fetches the specified file from the given S3 bucket.
 	 *
 	 * @param {string} bucket - The name of the S3 bucket.
@@ -61,23 +133,41 @@ exports.handler = async (event) => {
 		const command = {
             Bucket: bucket, Key: targetFile,
         };
-		const response = await s3Client.send(new GetObjectCommand(command));
+		let response = await s3Client.send(new GetObjectCommand(command));
 		return response?.Body?.transformToString();
 	}
-	let data = await getFile(`test-environment-bucket-${clientId}`, targetFile);
-	if (!data) {
-		data = await getFile('template', targetFile)
+
+	let data;
+	const checkData = await bucketObjectExistsAndAccessible(`test-environment-bucket-${clientId}`, targetFile);
+	if (checkData === false) {
+		// Get the transformed sections data from DynamoDB
+		const sections = await getTransformedData(clientId);
+		const tempDom = new JSDOM(await getFile('template', targetFile));
+		for (const [selector, sectionKey] of Object.entries(sections.message)) {
+			const elements = tempDom.window.document.querySelectorAll(selector);
+			for (const element of elements) {
+				if (sectionKey.type !== "container") {
+					element.innerHTML = `{{ ${sectionKey.dbMap} }}`;
+				}
+			}
+		}
+		await saveToS3(`template-for-client-${clientId}`, clientId, tempDom.serialize());
+		data = await getFile(`template-for-client-${clientId}`, targetFile);
+	} else {
+		data = await getFile(`test-environment-bucket-${clientId}`, targetFile);
 	}
+
 	try {
+		// Process the fetched HTML using JSDOM
 		const dom = new JSDOM(data);
 		if (process.env.LOCAL === "true") {
 			return {
 				statusCode: 200,
 				body: 'HTML delivered.',
-				HTML: dom.serialize()
+				HTML: await dom.serialize()
 			}
 		}
-		return dom.serialize();
+		return await dom.serialize();
 	} catch (error) {
 		console.error(error);
 		return {
