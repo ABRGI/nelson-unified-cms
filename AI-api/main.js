@@ -4,7 +4,7 @@ const apiroute = require('./routes/api');
 const startServer = require('./utils/startServer');
 
 const app = express();
-let port = 3000;
+let port = 3001;
 
 app.use(cors());
 app.use(express.json());

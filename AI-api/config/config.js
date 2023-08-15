@@ -2,8 +2,28 @@ const { Configuration } = require('openai');
 
 const messages = [
     {
-        role: 'user',
-        content: `I need hotel related text for this section (it is css class name): {section}. The text that needs to be used as base is the following and you need to improve or and extend it according to your knowledge of the area or text: {text}. If the text is empty, provide generic hotel text. What comes to instructions dont write anything besides just the text. And remember to follow the best practices, and make it short.`,
+        'role': 'system',
+        'content': `
+            Reply only and follow the provided instructions, dont expose that you are an AI model. 
+            {section}.
+            If the text is empty, provide generic hotel text as reply.
+            Follow the best practices while keeping SEO in mind.
+            Add an human touch to the text.
+        `,
+    },
+    {
+        'role': 'user',
+        'content': `Hotel related text and the text that needs to be used as base is the following and you need to improve or and extend it according to your knowledge of the area or text: {text}.`,
+    },
+    {
+        'role': 'system',
+        'content': `
+            Reply only and follow the provided instructions, dont expose that you are an AI model. 
+            {section}.
+            If the text is empty, provide generic hotel text as reply.
+            Follow the best practices while keeping SEO in mind.
+            Add an human touch to the text.
+        `,
     },
 ];
 

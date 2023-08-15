@@ -20,13 +20,19 @@ router.post('/', async (req, res) => {
 
     try {
         if (text && section) {
+            let sectionRule;
+            if (section === "title" || section === "question") {
+                sectionRule = "Keep content length only 5 words maximum. Never go over 5 words."
+            } else {
+                sectionRule = "Keep content length only 25 words maximum. Never go over 25 words."
+            }
             const openai = new OpenAIApi(ai_config);
 
             const chat_completion = await openai.createChatCompletion({
                 model: "gpt-3.5-turbo",
                 messages: messages.map((message) => ({
                     ...message,
-                    content: message.content.replace('{section}', section).replace('{text}', text),
+                    content: message.content.replace('{section}', sectionRule).replace('{text}', text),
                 })),
             });
             console.log(section, text)

@@ -161,9 +161,9 @@ exports.handler = async (event) => {
 	 *
 	 * @returns {Promise<void>}
 	 */
-	async function processAndSaveTemplate(clientId) {
+	const processAndSaveTemplate = async (clientId) => {
 		const getObjectParams = {
-			Bucket: "template",
+			Bucket: `template-for-client-${clientId}`,
 			Key: "index.html"
 		};
 
@@ -176,7 +176,7 @@ exports.handler = async (event) => {
 		let processedTemplate = template;
 
 		for (const [section, value] of Object.entries(contentSections)) {
-			processedTemplate = processedTemplate.replace(`{{ heroHeading }}`, value.M.content.S);
+			processedTemplate = processedTemplate.replace(`{{ ${section} }}`, value.M.content.S);
 		}
 
 		const putObjectParams = {

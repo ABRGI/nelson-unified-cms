@@ -7,7 +7,6 @@ const express = require('express');
 const router = express.Router();
 const jsdom = require('jsdom');
 const { SITE_URL } = require('../config/config');
-const selectorsWithType = require('../config/selectors');
 const downloadAsset = require('../utils/downloadAssets');
 const { disableLinks } = require('../utils/disableLinks');
 const { updateBindings } = require('../utils/updateBindings');
@@ -25,14 +24,34 @@ const { JSDOM } = jsdom;
  */
 router.get('/', async (req, res) => {
     try {
-        const response = await fetch(SITE_URL);
-        const data = await response.text();
+        const dataToSend = {
+            clientId: 1,
+            targetFile: "index.html"
+        };
 
+        const response = await fetch(SITE_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataToSend)
+        });
+
+        const selectorsWithType = await fetch(process.env.MAPPING_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({clientId: 1})
+        })
+        const selectorsWithTypeData = await selectorsWithType.json();
+        const data = await response.text();
+        console.log(data)
         const dom = new JSDOM(data, { url: SITE_URL });
         const { window, window: { document } } = dom;
 
         const links = await disableLinks(document);
-        await updateBindings(document, selectorsWithType);
+        await updateBindings(document, selectorsWithTypeData);
         const downloadPromises = links.map(downloadAsset);
         await Promise.all(downloadPromises);
 
@@ -42,11 +61,11 @@ router.get('/', async (req, res) => {
         document.body.appendChild(micromodal);
 
         const script = document.createElement('script');
-        script.src = "/editor/script.js";
-        document.head.appendChild(script);
+        script.src = "/bundle.js";
+        document.body.appendChild(script);
 
         const style = document.createElement('link');
-        style.href = "/editor/style.css";
+        style.href = "/style.css";
         style.rel = "stylesheet";
         style.type = "text/css";
         document.head.appendChild(style);
@@ -54,7 +73,7 @@ router.get('/', async (req, res) => {
         res.send(dom.serialize());
     } catch (error) {
         console.error(error);
-        res.status(500).send('An error occurred');
+        res.status(500).send('An error occurred' + error);
     }
 });
 
