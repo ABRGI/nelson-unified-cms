@@ -1,7 +1,8 @@
 # nelson-unified-cms
 Unified CMS to manage content for client website, guest comms, but, etc.
 
-## High-level diagram
+## High-level diagram  
+
 ```mermaid
 graph LR
     subgraph "Editor layer"
@@ -35,16 +36,29 @@ graph LR
 ### S3 bucket 
 https://s3ninja.net/
 
-### DB
-#### DynamoDB
-tools can be locate under the following path `./tools/dynamodb-utils`  
-to setup local dynamodb, you need docker for this.  
-Run DynamoDB locally use the following command:  
+### DynamoDB
+Native dynamoDB-local
+
+### Run S3 and DynamoDB locally
+Tools can be locate under the following path `./tools/dynamodb-utils`  
+to setup both S3 and DynamoDB locally, you need docker for this.  
+Run them locally use the following command:  
 `docker-compose up --build`
 
-#### DynamoDB admin
+### DynamoDB admin
 install  
 `npm install -g dynamodb-admin`  
 
 Local DynamoADMIN command:  
 `DYNAMO_ENDPOINT=localDynamoDBipAddress:port dynamodb-admin`
+
+### Stack
+Change `.env-example` to `.env` and fill the values correctly.  
+You need to install PM2  
+`npm install pm2 -g`  
+then give correct rights for the following files  
+`chmod +x startDev.sh stopDev.sh`  
+and then you are ready to go:  
+`./startDev.sh`  
+to stop process use:  
+`./stopDev.sh` 
