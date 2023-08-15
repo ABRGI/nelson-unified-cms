@@ -2,7 +2,7 @@
   "name": "lambda",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "local.js",
   "scripts": {
     "start": "node local.js",
     "dev": "nodemon local.js"
