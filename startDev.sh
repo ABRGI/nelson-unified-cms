@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare -a dirs=("AI-api" "../lambda" "../ui-editor-layer")
+declare -a dirs=("AI-api" "../lambda" "../ui-editor-layer" "../tools/dynamodb-utils")
 
 export $(cat ".env" | xargs)
 
@@ -9,6 +9,7 @@ do
     echo "Starting application in $dir"
     cd "$PWD/$dir"
     name=$(basename $dir)
+    npm install
     pm2 start npm --name $name -- run dev --watch
     sleep 5
 done

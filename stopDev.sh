@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare -a dirs=("AI-api" "lambda" "ui-editor-layer")
+declare -a dirs=("AI-api" "lambda" "ui-editor-layer" "tools/dynamodb-utils")
 
 for dir in "${dirs[@]}"
 do
