@@ -39,18 +39,12 @@ https://s3ninja.net/
 ### DynamoDB
 Native dynamoDB-local
 
-### Run S3 and DynamoDB locally
-Tools can be locate under the following path `./tools/dynamodb-utils`  
+### Run S3ninja, DynamoDB local and DynamoDB-admin locally
+Tools can be locate under the following path:  
+`./tools/dynamodb-utils`  
 to setup both S3 and DynamoDB locally, you need docker for this.  
 Run them locally use the following command:  
 `docker-compose up --build`
-
-### DynamoDB admin
-install  
-`npm install -g dynamodb-admin`  
-
-Local DynamoADMIN command:  
-`DYNAMO_ENDPOINT=localDynamoDBipAddress:port dynamodb-admin`
 
 ### Stack
 Change `.env-example` to `.env` and fill the values correctly.  
@@ -62,3 +56,9 @@ and then you are ready to go:
 `./startDev.sh`  
 to stop process use:  
 `./stopDev.sh` 
+
+### Ready, set, go!
+Once everything is running, you can find the services from the following urls:  
+* http://localhost:3000/?clientid=1 UI-editor
+* http://localhost:9444/ui s3ninja UI
+* http://localhost:8001 dynamodb-admin UI
