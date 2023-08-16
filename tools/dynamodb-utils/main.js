@@ -3,7 +3,7 @@ const {
     CreateTableCommand,
     PutItemCommand,
     DeleteTableCommand,
-    DescribeTableCommand,
+    DescribeTableCommand
 } = require('@aws-sdk/client-dynamodb');
 const { unmarshall, marshall } = require('@aws-sdk/util-dynamodb');
 
@@ -16,7 +16,7 @@ const dynamoProps = { region: process.env.ENV_REGION };
 if (process.env.LOCAL) {
     dynamoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
-        secretAccessKey: process.env.SECRETKEY,
+        secretAccessKey: process.env.SECRETKEY
     };
     dynamoProps.endpoint = process.env.DYNAMODB_ENDPOINT;
 }
@@ -49,9 +49,9 @@ const createTable = async () => {
     let tableStatus = null;
     do {
         const { Table } = await dynamoClient.send(
-            new DescribeTableCommand({ TableName: 'NUC' })
+            new DescribeTableCommand({ TableName: process.env.DYNAMODB_TABLE })
         );
-        tableStatus = Table.TableStatus;
+        tableStatus = Table?.TableStatus;
         if (tableStatus !== 'ACTIVE') {
             console.log('Waiting for table to become active...');
             await new Promise((r) => setTimeout(r, 5000));
@@ -73,8 +73,8 @@ const populateTable = async () => {
 
     const sections = {
         M: {
-            heroHeading: section('Hero content', 'div.hero-content .heading-hero'),
-            heroParagraph: section('Experiences content', 'div.hero-content .paragraph-hero'),
+            heroHeading: section('Hero content', 'div.hero-content .heading-hero', 'title'),
+            heroParagraph: section('Experiences content', 'div.hero-content .paragraph-hero', 'content'),
             roomShowCase: section('', 'div.hero-content .room-showcase-container', 'container'),
             experiencesHeading: section('Experiences heading', '#experiences .content:nth-child(1) .text-section-title', 'title'),
             experiencesTitle1: section('Experiences title', '#experiences .content:nth-child(2) .cards div:nth-child(1) .text-card-title', 'title'),
@@ -122,7 +122,9 @@ const populateTable = async () => {
         M: {
             updated: { N: '1691052759' },
             environmentActive: { BOOL: true },
-            sections,
+            website: sections,
+            sms: { M: { smsMessage: section('Placeholder content', 'div.content', 'content') }},
+            email: { M: { emailMessage: section('Placeholder content', 'div.content', 'content') }}
         },
     };
 
@@ -145,8 +147,13 @@ const populateTable = async () => {
 };
 
 const run = async () => {
-    await dropTable();
-    await createTable();
+    try {
+        await dropTable();
+        await createTable();
+    } catch (error) {
+        console.error('Error dropping and creating the table:', error);
+    }
+    console.log('Trying to populate the table');
     await populateTable();
 };
 
