@@ -7,8 +7,8 @@ const { S3Client, PutObjectCommand, GetObjectCommand } = require("@aws-sdk/clien
  * If running in local mode, use the provided access key, secret key, and S3 endpoint.
  * If not in local mode, just set the region.
  */
-const dynamoProps = { region: process.env.ENV_REGION }
-const s3Props = { region: process.env.ENV_REGION }
+const dynamoProps = { region: process.env.ENV_REGION };
+const s3Props = { region: process.env.ENV_REGION };
 if (process.env.LOCAL === "true") {
 	s3Props.endpoint = process.env.S3_ENDPOINT;
 	s3Props.sslEnabled = false;
@@ -39,7 +39,7 @@ const s3Client = new S3Client(s3Props);
  */
 exports.handler = async (event) => {
 	const { body } = event;
-	const {clientId, contentSections} = body;
+	const {clientId, contentSections, targetFile} = body;
 
 	/**
 	 * Constructs the update parameters for the given client ID and section updates.
@@ -59,10 +59,18 @@ exports.handler = async (event) => {
 				throw new Error(`Invalid updates for section: ${section}`);
 			}
 			for (const [field, update] of Object.entries(updates)) {
+				const dbMatcher = (match) => {
+					return {
+						'index.html': 'website',
+						'sms.html': 'sms',
+						'email.html': 'email'
+					}[match] ?? null;
+				};
+				const dbField = dbMatcher(targetFile);
 				const key = `:${section}`;
 				const sectionAlias = `#${section}`;
 				expressionAttributeNames[sectionAlias] = section;
-				updateExpression += `environments.dev.sections.${sectionAlias}.${Object.keys(update)[0]} = ${key}, `;
+				updateExpression += `environments.dev.${dbField}.${sectionAlias}.${Object.keys(update)[0]} = ${key}, `;
 				expressionAttributeValues[key] = Object.values(update)[0];
 			}
 		}
@@ -73,7 +81,7 @@ exports.handler = async (event) => {
 			Key: {
 				clientId: { N: clientId }
 			}
-		}
+		};
 		const data = await dynamoClient.send(new GetItemCommand(getParams));
 		if (!data.Item) {
 			throw new Error("Item doesn't exist, can't update");
@@ -88,7 +96,7 @@ exports.handler = async (event) => {
 			ExpressionAttributeValues: expressionAttributeValues,
 			ExpressionAttributeNames: expressionAttributeNames,
 			ReturnValues: "UPDATED_NEW"
-		}
+		};
 	};
 
 	/**
@@ -101,14 +109,15 @@ exports.handler = async (event) => {
 	const validateRequestBody = async (clientId, sectionUpdates) => {
 		const contentSections = await fetchContentSectionsFromDynamo(clientId);
 		const validSections = Object.keys(contentSections);
-		const hasValidSection = validSections.some(section => sectionUpdates.hasOwnProperty(section));
-		return hasValidSection;
-	}
-
-	if (!clientId) return {
-		statusCode: 400,
-		body: JSON.stringify({ message: 'clientId is required.' })
+		return validSections.some(section => sectionUpdates.hasOwnProperty(section));
 	};
+
+	if (!clientId) {
+		return {
+			statusCode: 400,
+			body: JSON.stringify({ message: 'clientId is required.' })
+		};
+	}
 	if (!contentSections || typeof contentSections !== 'object') {
 		return {
 			statusCode: 400,
@@ -143,7 +152,14 @@ exports.handler = async (event) => {
 			const data = await dynamoClient.send(new GetItemCommand(params));
 			if (data.Item) {
 				const item = data.Item;
-				return item.environments.M.dev.M.sections.M;
+				const dbMatcher = (match) => {
+					return {
+						'index.html': item.environments.M.dev.M.website.M,
+						'sms.html': item.environments.M.dev.M.sms.M,
+						'email.html': item.environments.M.dev.M.email.M
+					}[match] ?? null;
+				};
+				return dbMatcher(targetFile);
 			} else {
 				console.log(`No content sections found for clientId: ${clientId}`);
 				return null;
@@ -164,7 +180,7 @@ exports.handler = async (event) => {
 	const processAndSaveTemplate = async (clientId) => {
 		const getObjectParams = {
 			Bucket: `template-for-client-${clientId}`,
-			Key: "index.html"
+			Key: `${targetFile}`
 		};
 
 		const templateData = await s3Client.send(new GetObjectCommand(getObjectParams));
@@ -181,13 +197,13 @@ exports.handler = async (event) => {
 
 		const putObjectParams = {
 			Bucket: `test-environment-bucket-${clientId}`,
-			Key: "index.html",
+			Key: `${targetFile}`,
 			Body: processedTemplate,
 			ContentType: "text/html"
 		};
 
 		await s3Client.send(new PutObjectCommand(putObjectParams));
-	}
+	};
 	try {
 		const params = await updateParams(clientId, contentSections);
 		console.log('params:', params);
@@ -213,4 +229,4 @@ exports.handler = async (event) => {
 		};
 	}
 
-}
+};
