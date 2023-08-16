@@ -23,10 +23,22 @@ const { JSDOM } = jsdom;
  * @returns {Promise<void>} - A promise that resolves when the operations are completed.
  */
 router.get('/', async (req, res) => {
+    const {template, id} = req.query;
+    if (!template && !id) {
+        return res.status(400).send('No template and/or id provided');
+    }
+    const templateMatcher = (temp) => {
+        return {
+            website: 'index.html',
+            email: 'email.html',
+            sms: 'sms.html'
+        }[temp];
+    };
+    const templateFile = templateMatcher(template);
     try {
         const dataToSend = {
-            clientId: 1,
-            targetFile: "index.html"
+            clientId: id,
+            targetFile: templateFile
         };
 
         const response = await fetch(SITE_URL, {
@@ -42,11 +54,12 @@ router.get('/', async (req, res) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({clientId: 1})
-        })
+            body: JSON.stringify(dataToSend)
+        });
+
         const selectorsWithTypeData = await selectorsWithType.json();
         const data = await response.text();
-        console.log(data)
+
         const dom = new JSDOM(data, { url: SITE_URL });
         const { window, window: { document } } = dom;
 
@@ -55,7 +68,7 @@ router.get('/', async (req, res) => {
         const downloadPromises = links.map(downloadAsset);
         await Promise.all(downloadPromises);
 
-        const micromodal = document.createElement('script')
+        const micromodal = document.createElement('script');
         micromodal.src = "https://unpkg.com/micromodal/dist/micromodal.min.js";
         micromodal.type = "module";
         document.body.appendChild(micromodal);
