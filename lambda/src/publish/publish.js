@@ -41,7 +41,7 @@ const getParams = (clientId) => {
 			clientId: { N: clientId }
 		}
 	};
-}
+};
 
 /**
  * AWS Lambda handler function to copy values and files in AWS DynamoDB and S3 respectively.
@@ -54,7 +54,7 @@ const getParams = (clientId) => {
  */
 exports.handler = async (event) => {
 	const { body } = event;
-	const { clientId } = body;
+	const { clientId, targetFile } = body;
 
 	/**
 	 * Generates the parameters required for updating a DynamoDB item.
@@ -74,7 +74,7 @@ exports.handler = async (event) => {
 			ExpressionAttributeValues: {
 				":devValues": { M: marshall(devValues) }
 			}
-		}
+		};
 	};
 
 	/**
@@ -88,14 +88,15 @@ exports.handler = async (event) => {
 		return {
 			CopySource: `test-environment-bucket-${clientId}/index.html`,
 			Bucket: `production-environment-bucket-${clientId}`,
-			Key: `index.html`
+			Key: `${targetFile}`
 		};
 	};
 
-	if (!clientId) 	return {
-		statusCode: 400,
-		body: JSON.stringify({ message: 'clientId is required' })
-	};
+	if (!clientId) {
+		return {
+			statusCode: 400, body: JSON.stringify({message: 'clientId is required'})
+		};
+	}
 	const data = await dynamoClient.send(new GetItemCommand(getParams(clientId)));
 	if (!data.Item) {
 		throw new Error("Item doesn't exist, can't copy values");
