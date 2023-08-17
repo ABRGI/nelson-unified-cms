@@ -42,7 +42,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     elementsByDbMap.set(xDbMap, [element]);
                 }
             }
-        })
+        });
         let count = 0;
         elementsByType.forEach((elements, xType) => {
             const logElements = (elements, xType) => {

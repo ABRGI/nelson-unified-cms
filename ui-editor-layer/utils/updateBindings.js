@@ -8,7 +8,7 @@
  */
 const updateBindings = async (document, selectorsWithType) => {
     const { message } = selectorsWithType;
-    console.log(message)
+
     const bindingPromises = Object.entries(message).map(async ([selector, { type }]) => {
         const bindings = [...document.querySelectorAll(selector)];
 
@@ -26,6 +26,6 @@ const updateBindings = async (document, selectorsWithType) => {
     });
 
     return Promise.all([bindingPromises, bindingPromisesMap]);
-}
+};
 
 module.exports = { updateBindings };

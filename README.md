@@ -44,7 +44,10 @@ Tools can be locate under the following path:
 `./tools/dynamodb-utils`  
 to setup both S3 and DynamoDB locally, you need docker for this.  
 Run them locally use the following command:  
-`docker-compose up --build`
+`docker-compose up --build`  
+  
+**Remember** <ins>_to move **index.html**, **sms.html** and **email.html** from **template folder** to **"template" s3 bucket** which you have to create._</ins>  
+You can access s3ninja UI by going to http://localhost:9444/ui.
 
 ### Stack
 Change `.env-example` to `.env` and fill the values correctly.  

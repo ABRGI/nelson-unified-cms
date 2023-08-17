@@ -9,8 +9,8 @@ const { JSDOM } = jsdom;
  * If running in local mode, use the provided access key, secret key, and S3 endpoint.
  * If not in local mode, just set the region.
  */
-const dynamoProps = { region: process.env.ENV_REGION }
-const s3Props = { region: process.env.ENV_REGION }
+const dynamoProps = { region: process.env.ENV_REGION };
+const s3Props = { region: process.env.ENV_REGION };
 if (process.env.LOCAL === "true") {
 	s3Props.endpoint = process.env.S3_ENDPOINT;
 	s3Props.sslEnabled = false;
@@ -57,24 +57,25 @@ exports.handler = async (event) => {
 	 * @param {string} bucketName - Name of the S3 bucket.
 	 * @param {string} clientId - Client identifier.
 	 * @param {string} content - Content to save.
+	 * @param {string} targetFile - File to target.
 	 * @throws {Error} If the save operation to S3 fails.
 	 */
-	const saveToS3 = async (bucketName, clientId, content)=> {
+	const saveToS3 = async (bucketName, clientId, content, targetFile)=> {
 		const command = new PutObjectCommand({
 			Bucket: bucketName,
-			Key: "index.html",
+			Key: `${targetFile}`,
 			Body: content,
 			ContentType: "text/html"
 		});
 
 		try {
 			await s3Client.send(command);
-			console.log(`HTML saved to ${bucketName}/index.html`);
+			console.log(`HTML saved to ${bucketName}/${targetFile}`);
 		} catch (error) {
-			console.error(`Failed to save HTML to ${bucketName}/index.html`, error);
+			console.error(`Failed to save HTML to ${bucketName}/${targetFile}`, error);
 			throw error;
 		}
-	}
+	};
 
 	/**
 	 * Fetches and returns transformed data for a given client ID.
@@ -85,20 +86,20 @@ exports.handler = async (event) => {
 	 * @returns {Promise<Object>} The transformed data.
 	 * @throws {Error} If the fetch operation fails.
 	 */
-	const getTransformedData = async (clientId) => {
+	const getTransformedData = async (clientId, targetFile) => {
 		const response = await fetch('http://localhost:3002/mapping', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({ clientId })
+			body: JSON.stringify({ clientId, targetFile })
 		});
 
 		if (!response.ok) {
 			throw new Error('Failed to fetch transformed data');
 		}
 		return await response.json();
-	}
+	};
 
 	/**
 	 * Checks if an object exists and is accessible in a specified S3 bucket.
@@ -111,7 +112,7 @@ exports.handler = async (event) => {
 	 */
 	const bucketObjectExistsAndAccessible = async (bucket, targetFile) => {
 		const command = {
-			Bucket: bucket, Key: targetFile,
+			Bucket: bucket, Key: `${targetFile}`,
 		};
 		try {
 			await s3Client.send(new GetObjectCommand(command));
@@ -119,7 +120,7 @@ exports.handler = async (event) => {
 		} catch (error) {
 			return false;
 		}
-	}
+	};
 
 	/**
 	 * Fetches the specified file from the given S3 bucket.
@@ -131,17 +132,18 @@ exports.handler = async (event) => {
 	 */
 	const getFile = async (bucket, targetFile) => {
 		const command = {
-            Bucket: bucket, Key: targetFile,
+            Bucket: bucket, Key: `${targetFile}`,
         };
 		let response = await s3Client.send(new GetObjectCommand(command));
 		return response?.Body?.transformToString();
-	}
+	};
 
 	let data;
 	const checkData = await bucketObjectExistsAndAccessible(`test-environment-bucket-${clientId}`, targetFile);
+	console.log(checkData);
 	if (checkData === false) {
 		// Get the transformed sections data from DynamoDB
-		const sections = await getTransformedData(clientId);
+		const sections = await getTransformedData(clientId, targetFile);
 		const tempDom = new JSDOM(await getFile('template', targetFile));
 		for (const [selector, sectionKey] of Object.entries(sections.message)) {
 			const elements = tempDom.window.document.querySelectorAll(selector);
@@ -151,7 +153,7 @@ exports.handler = async (event) => {
 				}
 			}
 		}
-		await saveToS3(`template-for-client-${clientId}`, clientId, tempDom.serialize());
+		await saveToS3(`template-for-client-${clientId}`, clientId, tempDom.serialize(), targetFile);
 		data = await getFile(`template-for-client-${clientId}`, targetFile);
 	} else {
 		data = await getFile(`test-environment-bucket-${clientId}`, targetFile);
@@ -165,7 +167,7 @@ exports.handler = async (event) => {
 				statusCode: 200,
 				body: 'HTML delivered.',
 				HTML: await dom.serialize()
-			}
+			};
 		}
 		return await dom.serialize();
 	} catch (error) {
@@ -173,6 +175,6 @@ exports.handler = async (event) => {
 		return {
 			statusCode: 500,
             body: 'Internal server error.'
-		}
+		};
 	}
-}
+};
