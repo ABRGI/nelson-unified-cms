@@ -64,12 +64,14 @@ exports.handler = async (event) => {
 			for (const sectionKey in sections) {
 				if (sections[sectionKey].M.show.BOOL) {
 					const sectionType = sections[sectionKey].M.type.S;
-					const sectionSelector = sections[sectionKey].M.selector.S;
+					const sectionAttributeKey = sections[sectionKey].M.key.S;
+					const sectionShow = sections[sectionKey].M.show.BOOL;
 
-					if (sectionSelector) {
-						transformedData[sectionSelector] = {
+					if (sectionAttributeKey) {
+						transformedData[sectionAttributeKey] = {
 							type: sectionType,
-							dbMap: sectionKey
+							dbMap: sectionKey,
+							show: sectionShow
 						};
 					}
 				}
