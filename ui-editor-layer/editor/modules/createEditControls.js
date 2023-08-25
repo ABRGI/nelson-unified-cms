@@ -19,7 +19,7 @@ export const createEditControls = (div, xType, index, count) => {
 		storeObject[`${dbMap}`] = spanContent;
 		localStorage.setItem("storeObject", JSON.stringify(storeObject));
 		console.log('storeObject after modification:', storeObject);
-	}
+	};
 	if (xType === "ai-block") {
 		div.append(editBtn, sectionTag);
         editBtn.setAttribute('data-micromodal-trigger', `modal-${index+1}`);
