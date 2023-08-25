@@ -13,8 +13,9 @@ window.addEventListener('DOMContentLoaded', () => {
      * @throws {Error} Throws an error if elements with the specified attributes are not found after multiple retries.
      */
     const tryQuerySelector = () => {
-        const elements = document.querySelectorAll('[x-type]');
-        const elementsMap = document.querySelectorAll('[x-db-map]');
+        localStorage.removeItem("storeObject");
+        const elements = document.querySelectorAll('[x-binding-type]');
+        const elementsMap = document.querySelectorAll('[x-binding-key]');
 
         if ((elements.length || elementsMap.length) === 0) setTimeout(tryQuerySelector, 10000);
 
@@ -24,7 +25,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const dbObject = {};
 
         elements.forEach((element) => {
-            const xType = element.getAttribute('x-type');
+            const xType = element.getAttribute('x-binding-type');
 
             if (elementsByType.has(xType)) {
                 elementsByType.get(xType).push(element);
@@ -33,7 +34,7 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
         elementsMap.forEach((element) => {
-            const xDbMap = element.getAttribute('x-db-map');
+            const xDbMap = element.getAttribute('x-binding-key');
 
             if (xDbMap !== 'undefined' && xDbMap !== null) {
                 if (elementsByDbMap.has(xDbMap)) {
