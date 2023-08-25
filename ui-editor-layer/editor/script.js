@@ -50,7 +50,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 console.log(`Elements with x-type "${xType}":`, elements);
 
                 elements.forEach((element) => {
-                    if (xType == null) return;
+                    if (xType === null) return;
                     count++;
                     storeObject[`${xType}-${count}`] = "";
                 });
@@ -63,7 +63,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 console.log(`Elements with x-db-map "${xDbMap}":`, elements);
 
                 elements.forEach((element) => {
-                    if (xDbMap == null ) return;
+                    if (xDbMap === null ) return;
                     dbObject[`${xDbMap}`] = "";
                 });
             };
