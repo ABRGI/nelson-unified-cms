@@ -1,4 +1,5 @@
 import {createEditControlsAfterFill} from "./modules/createEditControlsAfterFill";
+import MicroModal from "./modules/micromodal.min";
 
 window.addEventListener('DOMContentLoaded', () => {
     /**
