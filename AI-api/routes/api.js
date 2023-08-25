@@ -22,9 +22,9 @@ router.post('/', async (req, res) => {
         if (text && section) {
             let sectionRule;
             if (section === "title" || section === "question") {
-                sectionRule = "Keep content length only 5 words maximum. Never go over 5 words."
+                sectionRule = "Keep content length only 5 words maximum. Never go over 5 words.";
             } else {
-                sectionRule = "Keep content length only 25 words maximum. Never go over 25 words."
+                sectionRule = "Keep content length only 25 words maximum. Never go over 25 words.";
             }
             const openai = new OpenAIApi(ai_config);
 
@@ -35,7 +35,7 @@ router.post('/', async (req, res) => {
                     content: message.content.replace('{section}', sectionRule).replace('{text}', text),
                 })),
             });
-            console.log(section, text)
+
             const message = chat_completion.data.choices[0].message.content;
             res.status(200).json({message});
         } else {
