@@ -33,4 +33,4 @@ export const createEditControlsAfterFill = (elementsByType, elementsByDbMap, sto
 
 	// Start recursive processing
 	createEditControlsRecursive();
-}
+};
