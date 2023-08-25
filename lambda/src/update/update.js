@@ -102,6 +102,7 @@ exports.handler = async (event) => {
 	/**
 	 * Validates the content sections in the request body.
 	 *
+	 * @param clientId - Client id
 	 * @param {Object} sectionUpdates - Object containing section updates.
 	 *
 	 * @returns {boolean} Whether the section updates are valid.
@@ -118,6 +119,7 @@ exports.handler = async (event) => {
 			body: JSON.stringify({ message: 'clientId is required.' })
 		};
 	}
+
 	if (!contentSections || typeof contentSections !== 'object') {
 		return {
 			statusCode: 400,
@@ -206,9 +208,7 @@ exports.handler = async (event) => {
 	};
 	try {
 		const params = await updateParams(clientId, contentSections);
-		console.log('params:', params);
-		const updatedData = await dynamoClient.send(new UpdateItemCommand(params));
-		console.log('updatedData:', updatedData);
+		await dynamoClient.send(new UpdateItemCommand(params));
 		await (async () => {
 			try {
 				await processAndSaveTemplate(clientId);
