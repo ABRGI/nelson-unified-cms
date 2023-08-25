@@ -99,7 +99,7 @@ export const createEditControls = (div, xType, index, count) => {
 		if (elementSectionTag) {
 			elementSectionTag.textContent = xType ?? '';
 		}
-	}
+	};
 	setElementSectionTag(div, xType);
 	let elementsArray = [editBtn, sectionTag];
 	const toggleElements = (elements, className) => elements.forEach(element => element.classList.toggle(className));
@@ -201,8 +201,8 @@ export const createEditControls = (div, xType, index, count) => {
 				div.classList.remove('editing');
 				editBtn.innerText = 'Edit';
 				toggleElements([aiBtn], 'show');
-				updateStoreObject(div, xType, count)
+				updateStoreObject(div, xType, count);
 			}
 		}
-	}
-}
+	};
+};
