@@ -41,7 +41,7 @@ export const createEditControls = (div, xType, index, count) => {
 					console.error('Error fetching data:', error);
 					document.getElementById('result').innerText = 'Error fetching data. Please try again later.';
 				}
-		})
+		});
 
         // Add the event listener to the 'Save' button of the modal
         const modalSaveBtn = document.getElementById(`modal-${index+1}-save`);
@@ -99,7 +99,7 @@ export const createEditControls = (div, xType, index, count) => {
 		if (elementSectionTag) {
 			elementSectionTag.textContent = xType ?? '';
 		}
-	}
+	};
 	setElementSectionTag(div, xType);
 	let elementsArray = [editBtn, sectionTag];
 	const toggleElements = (elements, className) => elements.forEach(element => element.classList.toggle(className));
@@ -201,8 +201,8 @@ export const createEditControls = (div, xType, index, count) => {
 				div.classList.remove('editing');
 				editBtn.innerText = 'Edit';
 				toggleElements([aiBtn], 'show');
-				updateStoreObject(div, xType, count)
+				updateStoreObject(div, xType, count);
 			}
 		}
-	}
-}
+	};
+};
