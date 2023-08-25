@@ -41,7 +41,7 @@ export const createEditControls = (div, xType, index, count) => {
 					console.error('Error fetching data:', error);
 					document.getElementById('result').innerText = 'Error fetching data. Please try again later.';
 				}
-		})
+		});
 
         // Add the event listener to the 'Save' button of the modal
         const modalSaveBtn = document.getElementById(`modal-${index+1}-save`);
