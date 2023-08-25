@@ -51,17 +51,16 @@ You can access s3ninja UI by going to http://localhost:9444/ui.
 
 ### Stack
 Change `.env-example` to `.env` and fill the values correctly.  
-You need to install PM2  
-`npm install pm2 -g`  
-then give correct rights for the following files  
-`chmod +x startDev.sh stopDev.sh`  
+You need to install dependencies.  
+`npm i`  
 and then you are ready to go:  
-`./startDev.sh`  
-to stop process use:  
-`./stopDev.sh` 
+to start everything: `pm2 start pm2.config.js`  
+to see logs: `pm2 logs --lines 20`  
+to stop all the processes: `pm2 delete pm2.config.js`  
 
 ### Ready, set, go!
 Once everything is running, you can find the services from the following urls:  
+* http://localhost:3002/establish/?clientId=1&targetFile=index.html generate template file and bindings to db.
 * http://localhost:3000/?clientid=1 UI-editor
 * http://localhost:9444/ui s3ninja UI
 * http://localhost:8001 dynamodb-admin UI
