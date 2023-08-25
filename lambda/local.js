@@ -9,9 +9,13 @@ const retrieval = require('./src/retrieval/retrieval');
 const update = require('./src/update/update');
 const publish = require('./src/publish/publish');
 const mapping = require('./src/mapping/mapping');
+const preview = require('./src/preview/preview');
+const establish = require('./src/establish/establish');
 
 app.use(cors());
 app.use(express.json());
+
+app.use(express.static('public'));
 
 /**
  * Retrieval, update, and publish handlers for AWS operations.
@@ -77,5 +81,37 @@ app.post('/mapping', (req, res) =>   {
 		console.log(err);
 	})
 })
+
+/**
+ * Handles the GET request to preview data.
+ *
+ * @param {Object} req Express request object.
+ * @param {Object} res Express response object.
+ */
+app.get('/preview', (req, res) =>   {
+	preview.handler({ queryStringParameters: req.query, body: req.body, httpMethod: 'GET' }).then((ret) => {
+		res.statusCode = ret.statusCode;
+		if (ret.statusCode === 200) return res.send(ret.HTML);
+		return res.send(JSON.parse(ret.body));
+	}).catch(function (err) {
+		console.log(err);
+	});
+});
+
+/**
+ * Handles the GET request to establish data.
+ *
+ * @param {Object} req Express request object.
+ * @param {Object} res Express response object.
+ */
+app.get('/establish', (req, res) =>   {
+	establish.handler({ queryStringParameters: req.query, body: req.body, httpMethod: 'GET' }).then((ret) => {
+		res.statusCode = ret.statusCode;
+		if (ret.statusCode === 200) return res.send(ret.HTML);
+		return res.send(JSON.parse(ret.body));
+	}).catch(function (err) {
+		console.log(err);
+	});
+});
 
 startServer(app, port);
