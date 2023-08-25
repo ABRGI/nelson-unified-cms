@@ -109,7 +109,7 @@ export const createEditControls = (div, xType, index, count) => {
 		const span = div.querySelector('span');
 		if (!span) return; // Return early if the span doesn't exist
 		const data = { text: div.querySelector('span').textContent, section: div.querySelector('.section-tag.show').textContent };
-		fetch('http://localhost:3001/', {
+		fetch('http://localhost:3002/ai/', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
