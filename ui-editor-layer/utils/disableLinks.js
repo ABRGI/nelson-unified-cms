@@ -13,7 +13,7 @@ const disableLinks = async (document) => {
     links.forEach(a => {
         if (a.className === 'accordion-header w-inline-block') {
             const div = document.createElement("div");
-            div.innerHTML = a.innerHTML
+            div.innerHTML = a.innerHTML;
             a.replaceWith(div);
         }
         /**
@@ -24,6 +24,6 @@ const disableLinks = async (document) => {
     });
 
     return links;
-}
+};
 
 module.exports = { disableLinks };
