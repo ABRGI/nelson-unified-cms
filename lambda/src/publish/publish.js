@@ -7,8 +7,8 @@ const { CopyObjectCommand, GetObjectCommand, S3Client } = require("@aws-sdk/clie
  * If running in local mode, use the provided access key, secret key, and S3 endpoint.
  * If not in local mode, just set the region.
  */
-const dynamoProps = { region: process.env.ENV_REGION }
-const s3Props = { region: process.env.ENV_REGION }
+const dynamoProps = { region: process.env.ENV_REGION };
+const s3Props = { region: process.env.ENV_REGION };
 if (process.env.LOCAL === "true") {
 	s3Props.endpoint = process.env.S3_ENDPOINT;
 	s3Props.sslEnabled = false;
@@ -117,5 +117,4 @@ exports.handler = async (event) => {
 			body: JSON.stringify({ message: error })
 		};
     }
-
-}
+};

@@ -1,5 +1,5 @@
 const jsdom = require('jsdom');
-const { DynamoDBClient, BatchWriteItemCommand, QueryCommand, DeleteItemCommand, UpdateItemCommand} = require("@aws-sdk/client-dynamodb");
+const { DynamoDBClient, QueryCommand, DeleteItemCommand, UpdateItemCommand} = require("@aws-sdk/client-dynamodb");
 const { unmarshall, marshall } = require("@aws-sdk/util-dynamodb");
 const { GetObjectCommand, S3Client, PutObjectCommand} = require("@aws-sdk/client-s3");
 const { JSDOM } = jsdom;

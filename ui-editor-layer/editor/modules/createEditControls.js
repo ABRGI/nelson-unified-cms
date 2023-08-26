@@ -51,7 +51,7 @@ export const createEditControls = (div, xType, index, count) => {
 	}
 	if (xType === "container") {
 		div.append(editBtn, sectionTag);
-		const images = div.querySelectorAll('.swiper-wrapper img')
+		const images = div.querySelectorAll('.swiper-wrapper img');
 		const content = div.querySelectorAll('.div-block div:not(.divider, .div-block-2, .grid-features, .ico-lg, .flex-h-xsm--wrap, .flex-h-sm--wrap), .div-block a');
 		const allContentAsHTML = Array.prototype.reduce.call(content, (html, node) => html + node.outerHTML.replace(/(?<=class=")/, 'modal-user-content ').replace('>', ' contentEditable="true">') + '<br>', '');
 		const allImagesAsHTML = Array.prototype.reduce.call(images, (html, node) => html + node.outerHTML.replace(/class="[^"]*"/g, 'class="modal-user-images"') + '<br>', '');
